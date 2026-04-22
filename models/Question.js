@@ -12,7 +12,11 @@ const questionSchema = new mongoose.Schema(
       enum: ['pending', 'answered'],
       default: 'pending',
     },
-    category: { type: String, default: 'general' },
+    category: {
+      type: String,
+      enum: ['general', 'fiqh', 'aqeedah', 'hadith', 'tafseer', 'seerah', 'family'],
+      default: 'general',
+    },
     language: { type: String, default: 'en' },
     answeredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     answeredAt: Date,
