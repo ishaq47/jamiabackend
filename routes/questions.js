@@ -7,22 +7,32 @@ const router = express.Router();
 
 router.post('/', protect, async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
     const { question, category, language } = req.body;
+    
+    if (!question || question.trim().length < 5) {
+      return res.status(400).json({ error: 'Question must be at least 5 characters' });
+    }
+
     const q = await Question.create({
       user: req.user._id,
-      userName: req.user.username,
+      userName: req.user.name,
       userEmail: req.user.email,
-      question,
+      question: question.trim(),
       category: category || 'general',
       language: language || 'en',
     });
+
     res.status(201).json(q);
   } catch (err) {
+    console.error('Question creation error:', err);
     res.status(400).json({ error: err.message });
   }
 });
 
-// Public with pagination & filters
 router.get('/public', async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -52,13 +62,21 @@ router.get('/public', async (req, res) => {
 });
 
 router.get('/my', protect, async (req, res) => {
-  const questions = await Question.find({ user: req.user._id }).sort({ createdAt: -1 });
-  res.json(questions);
+  try {
+    const questions = await Question.find({ user: req.user._id }).sort({ createdAt: -1 });
+    res.json(questions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.get('/', protect, admin, async (req, res) => {
-  const questions = await Question.find().sort({ createdAt: -1 });
-  res.json(questions);
+  try {
+    const questions = await Question.find().sort({ createdAt: -1 });
+    res.json(questions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.put('/:id/answer', protect, admin, async (req, res) => {
@@ -76,28 +94,19 @@ router.put('/:id/answer', protect, admin, async (req, res) => {
       { new: true }
     );
 
-    // Email notification
-    if (q.userEmail) {
+    if (q && q.userEmail) {
       sendEmail({
         to: q.userEmail,
         subject: 'Your Question Has Been Answered',
         html: `
           <div style="font-family: Arial; max-width: 600px; margin: auto;">
-            <div style="background: #14532d; color: white; padding: 20px; text-align: center;">
+            <div style="background: #1e293b; color: white; padding: 20px; text-align: center;">
               <h2>Jamia Uloom Islamia</h2>
             </div>
             <div style="padding: 20px; background: #f9f9f9;">
               <p>Assalamu Alaikum <strong>${q.userName}</strong>,</p>
-              <p>Your question has been answered by our scholars:</p>
-              <div style="background: white; padding: 15px; border-left: 4px solid #14532d; margin: 15px 0;">
-                <strong>Q:</strong> ${q.question}
-              </div>
-              <div style="background: #fef3c7; padding: 15px; border-left: 4px solid #eab308;">
-                <strong>A:</strong> ${answer.replace(/<[^>]*>/g, '').substring(0, 300)}...
-              </div>
-              <p style="margin-top: 20px;">
-                <a href="${process.env.CLIENT_URL}/dashboard" style="background:#14532d;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">View Full Answer</a>
-              </p>
+              <p>Your question has been answered by our scholars.</p>
+              <p><a href="${process.env.CLIENT_URL}/dashboard" style="background:#1e293b;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">View Answer</a></p>
             </div>
           </div>
         `,
@@ -111,8 +120,12 @@ router.put('/:id/answer', protect, admin, async (req, res) => {
 });
 
 router.delete('/:id', protect, admin, async (req, res) => {
-  await Question.findByIdAndDelete(req.params.id);
-  res.json({ message: 'Deleted' });
+  try {
+    await Question.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

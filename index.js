@@ -8,6 +8,8 @@ import newsRoutes from './routes/news.js';
 import authRoutes from './routes/auth.js';
 import questionRoutes from './routes/questions.js';
 import userRoutes from './routes/users.js';
+import applicationRoutes from './routes/applications.js';
+import sitemapRoutes from './routes/sitemap.js';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +24,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/', sitemapRoutes);
 
 app.get('/', (req, res) => res.send('Madrasa API Running'));
 
