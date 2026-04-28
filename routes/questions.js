@@ -126,7 +126,7 @@ router.put('/:id/answer', protect, admin, async (req, res) => {
         html: `
           <div style="font-family: Arial; max-width: 600px; margin: auto;">
             <div style="background: #1e293b; color: white; padding: 20px; text-align: center;">
-              <h2>Jamia Uloom Islamia</h2>
+              <h2>Jamia Darul Uloom </h2>
             </div>
             <div style="padding: 20px; background: #f9f9f9;">
               <p>Assalamu Alaikum <strong>${q.userName}</strong>,</p>
