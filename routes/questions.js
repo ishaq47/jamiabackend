@@ -134,6 +134,21 @@ router.put('/:id/answer', protect, admin, async (req, res) => {
               <p><a href="${process.env.CLIENT_URL}/dashboard" style="background:#1e293b;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">View Answer</a></p>
             </div>
           </div>
+          <div style="font-family: Arial; max-width: 600px; margin: auto;">
+          <br/>
+  <div style="background: #1e293b; color: white; padding: 20px; text-align: center;">
+    <h2>جامعہ دارالعلوم</h2>
+  </div>
+  <div style="padding: 20px; background: #f9f9f9;">
+    <p>السلام علیکم <strong>${q.userName}</strong>،</p>
+    <p>آپ کے سوال کا جواب ہمارے علماء کرام نے دے دیا ہے۔</p>
+    <p>
+      <a href="${process.env.CLIENT_URL}/dashboard" style="background:#1e293b;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">
+        جواب دیکھیں
+      </a>
+    </p>
+  </div>
+</div>
         `,
       });
     }
