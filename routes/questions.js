@@ -5,28 +5,53 @@ import { sendEmail } from '../utils/sendEmail.js';
 
 const router = express.Router();
 
-router.post('/', protect, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    if (!req.user || !req.user._id) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
+    const { question, category, language, userName, userEmail } = req.body;
 
-    const { question, category, language } = req.body;
-    
+    // Basic validation
     if (!question || question.trim().length < 5) {
-      return res.status(400).json({ error: 'Question must be at least 5 characters' });
+      return res.status(400).json({ error: 'Question must be at least 5 characters long' });
     }
 
-    const q = await Question.create({
-      user: req.user._id,
-      userName: req.user.name,
-      userEmail: req.user.email,
+    let userId = null;
+    let finalUserName = userName;
+    let finalUserEmail = userEmail;
+
+    // If user is logged in (via protect middleware)
+    if (req.user) {
+      userId = req.user._id;
+      finalUserName = req.user.name;      // Prefer authenticated user's name
+      finalUserEmail = req.user.email;    // Prefer authenticated user's email
+    } 
+    // If user is NOT logged in (Guest)
+    else {
+      if (!userName || userName.trim().length < 2) {
+        return res.status(400).json({ error: 'Name is required for guest users' });
+      }
+      if (!userEmail || !/^\S+@\S+\.\S+$/.test(userEmail)) {
+        return res.status(400).json({ error: 'Valid email is required for guest users' });
+      }
+      finalUserName = userName.trim();
+      finalUserEmail = userEmail.trim().toLowerCase();
+    }
+
+    const newQuestion = await Question.create({
+      user: userId,                    // null if guest
+      userName: finalUserName,
+      userEmail: finalUserEmail,
       question: question.trim(),
       category: category || 'general',
       language: language || 'en',
+      status: 'pending',               // Good to explicitly set status
+      isPublic: false,                 // Default: not public until admin approves
     });
 
-    res.status(201).json(q);
+    res.status(201).json({
+      message: 'Question submitted successfully',
+      question: newQuestion
+    });
+
   } catch (err) {
     console.error('Question creation error:', err);
     res.status(400).json({ error: err.message });
