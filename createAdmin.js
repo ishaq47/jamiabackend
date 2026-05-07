@@ -7,9 +7,9 @@ dotenv.config();
 mongoose.connect(process.env.MONGO_URI).then(async () => {
   await User.deleteOne({ email: 'admin@madrasa.com' });
   await User.create({
-    username: 'Admin',
-    email: 'mik9649820@gmail.com',
-    password: 'ishaq123',
+    username: 'Mufti Fazal Ali Shah',
+    email: 'mufti123@gmail.com',
+    password: 'mufti123',
     role: 'admin',
   });
   console.log('✅ Admin created: mik9649820@gmail.com / ishaq123');
