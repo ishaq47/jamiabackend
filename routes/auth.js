@@ -57,7 +57,7 @@ router.post('/forgot-password', async (req, res) => {
     const token = user.generateResetToken();
     await user.save();
 
-    const resetUrl = `https://jamiafrontend-henna.vercel.app/reset-password/${token}`;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${token}`;
     await sendEmail({
       to: user.email,
       subject: 'Password Reset',
@@ -78,7 +78,6 @@ router.post('/forgot-password', async (req, res) => {
 
     res.json({ message: 'Reset email sent' });
   } catch (err) {
-    console.log("forget error", err)
     res.status(500).json({ error: err.message });
   }
 });
