@@ -16,23 +16,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://jamiafrontend-henna.vercel.app"
-];
-
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      } else {
-        return callback(new Error("CORS blocked: " + origin));
-      }
-    },
+    origin: process.env.CLIENT_URL,
     credentials: true
   })
 );
